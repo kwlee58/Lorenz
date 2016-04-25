@@ -1,0 +1,13 @@
+sample.interval=20000
+"int_abline" "abline" "lorenz" 
+"segments" "polygon.onehatch" "polygon.fullhatch" "polygon" "lorenz" 
+"segments" "polygon.onehatch" "polygon.fullhatch" "polygon" "lorenz" 
+"segments" "polygon.onehatch" "polygon.fullhatch" "polygon" "lorenz" 
+"segments" "polygon.onehatch" "polygon.fullhatch" "polygon" "lorenz" 
+"segments" "polygon.onehatch" "polygon.fullhatch" "polygon" "lorenz" 
+"segments" "polygon.onehatch" "polygon.fullhatch" "polygon" "lorenz" 
+"segments" "polygon.onehatch" "polygon.fullhatch" "polygon" "lorenz" 
+"segments" "polygon.onehatch" "polygon.fullhatch" "polygon" "lorenz" 
+"segments" "polygon.onehatch" "polygon.fullhatch" "polygon" "lorenz" 
+"segments" "polygon.onehatch" "polygon.fullhatch" "polygon" "lorenz" 
+"axis" "lorenz" 

@@ -1,0 +1,185 @@
+---
+title: "Korean Income Distribution"
+author: "coop711"
+date: "2015년 4월 12일"
+output: html_document
+---
+
+Data Management
+---------------
+
+자료 입력
+
+```{r}
+income.kor<-read.table("labor_income_kor.txt", header=T, row.names=1)
+income.kor
+str(income.kor)
+```
+
+barplot() 을 그리기 위하여 height 를 설정하려면 width를 파악하여야 함. 그러기 위해서
+소득 구간을 row.names의 구간으로부터 설정.
+
+```{r}
+income.breaks<-c(0,5,10,20,30,40,60,80,100,200,300,500,1000,2000)
+```
+
+width에 해당하는 각 소득구간의 폭을 계산
+
+```{r}
+income.widths<-diff(income.breaks)
+income.widths
+```
+
+각 기둥의 면적이 해당 소득구간의 퍼센티지와 같게 해주려면 각 퍼센티지를 width 로 나눠줘야 함.
+
+```{r}
+height.workers<-income.kor[,1]/income.widths
+round(height.workers, digits=3)
+```
+
+아무런 argument 도 설정하지 않고 barplot() 을 그리면 
+
+```{r fig.width=12, fig.height=4}
+barplot(height.workers, income.widths)
+```
+
+각 bar 의 이름을 row.names에서 가져오면
+
+```{r}
+names.bar<-rownames(income.kor)
+names.bar
+```
+
+bar 의 이름을 넣어 다시 그리되, bar 사이의 공간을 없애면
+ 
+```{r fig.width=12, fig.height=4}
+barplot(height.workers, income.widths, names.arg=names.bar)
+```
+
+실제 인원은 거의 없는 것처럼 보이는 5억원 이상의 구간을 합쳐야 할 필요. 자료를 재구성하면,
+
+```{r}
+income.kor.2<-income.kor[1:11,]
+income.kor.2[11,]<-apply(income.kor[11:13,], 2, sum)
+income.kor.2
+rownames(income.kor.2)
+rownames(income.kor.2)[11]<-"300-  "
+income.kor.2
+income.breaks.2<-c(0,5,10,20,30,40,60,80,100,200,300,500)
+income.widths.2<-diff(income.breaks.2)
+height.workers.2<-income.kor.2[,1]/income.widths.2
+names.bar.2<-rownames(income.kor.2)
+```
+
+다시 barplot()을 작동시키되 회색 대신 흰색을 넣고, bar 사이의 공간을 없애면
+
+```{r fig.width=12, fig.height=4}
+barplot(height.workers.2, income.widths.2, names.arg=names.bar.2, space=0, col="white")
+title(main="Korea Income Earners' Distribution", xlab="Income Class (Million Won)", ylab="% per Million Won")
+```
+
+1억 이상의 구간을 합치기 위하여 자료를 다시 손보면,
+
+```{r}
+income.kor.3<-income.kor.2[1:9,]
+income.kor.3[9,]<-apply(income.kor.2[9:11,], 2, sum)
+rownames(income.kor.3)[9]<-"100-   "
+income.breaks.3<-c(0,5,10,20,30,40,60,80,100,200)
+income.widths.3<-diff(income.breaks.3)
+height.workers.3<-income.kor.3[,1]/income.widths.3
+names.bar.3<-rownames(income.kor.3)
+```
+
+1억 이상의 구간을 합쳐 barplot을 그리면,
+
+```{r fig.width=12, fig.height=4}
+barplot(height.workers.3, income.widths.3, names.arg=names.bar.3, space=0, col="white")
+title(main="Korea Income Earners' Distribution", xlab="Income Class (Million Won)", ylab="% per Million Won")
+```
+
+
+
+같은 방법으로 소득규모에 대하여 세 개의  barplot을 그리려면, 우선 자료를 정리하고. 
+
+```{r}
+height.income<-income.kor[,2]/income.widths
+height.income.2<-income.kor.2[,2]/income.widths.2
+height.income.3<-income.kor.3[,2]/income.widths.3
+```
+
+세 개의 barplot을 연속으로 그리기 위하여 par(mfrow=c(3,1)) 설정
+
+```{r fig.width=12, fig.height=12}
+par(mfrow=c(3,1))
+barplot(height.income, income.widths, names.arg=names.bar, space=0, col="white")
+barplot(height.income.2, income.widths.2, names.arg=names.bar.2, space=0, col="white")
+barplot(height.income.3, income.widths.3, names.arg=names.bar.3, space=0, col="white")
+par(mfrow=c(1,1))
+```
+
+barplot 보다 누적도표가 분포의 윤곽을 살피는 데 더 낫다는 점을 상기하면, 누적분포를 구하는 일부터 시작하여야 함. 자료로부터 이미 아는 사실이지만, cumsum()함수의 활용겸 확인차 계산해보면 
+
+```{r}
+income.kor.cum<-apply(income.kor, 2, cumsum)
+income.kor.cum
+```
+
+누적도표를 그리려면 첫 시작은 (0, 0)이어야 함에 유의. 마침 income.breaks 와 맞춰보면 income.kor.cum 의 첫 행을 0으로만 추가해 주면 되는 일임. xlim 을 좁혀가면서 분포 윤곽 파악.
+
+```{r fig.width=12, fig.height=12}
+par(mfrow=c(2,2))
+plot(x=income.breaks, y=c(0,income.kor.cum[,1]), type="b", ann=F)
+title(main="Cumulative Income Earners' Distribution", xlab="Income (Million Won)", ylab="Cumulative % of People")
+plot(x=income.breaks, y=c(0,income.kor.cum[,1]), type="b", xlim=c(0,500), ann=F)
+title(main="Cumulative Income Earners' Distribution", xlab="Income (Million Won)", ylab="Cumulative % of People")
+plot(x=income.breaks, y=c(0,income.kor.cum[,1]), type="b", xlim=c(0,200), ann=F)
+title(main="Cumulative Income Earners' Distribution", xlab="Income (Million Won)", ylab="Cumulative % of People")
+plot(x=income.breaks, y=c(0,income.kor.cum[,1]), type="b", xlim=c(0,100), ann=F)
+title(main="Cumulative Income Earners' Distribution", xlab="Income (Million Won)", ylab="Cumulative % of People")
+par(mfrow=c(1,1))
+```
+
+소득 자체의 누적분포에 대해서도 같은 방법으로 그려보면 
+
+```{r fig.width=12, fig.height=12}
+par(mfrow=c(2,2))
+plot(x=income.breaks, y=c(0,income.kor.cum[,2]), type="b", ann=F)
+title(main="Cumulative Income Distribution", xlab="Income (Million Won)", ylab="Cumulative % of Income")
+plot(x=income.breaks, y=c(0,income.kor.cum[,2]), type="b", xlim=c(0,500), ann=F)
+title(main="Cumulative Income Distribution", xlab="Income (Million Won)", ylab="Cumulative % of Income")
+plot(x=income.breaks, y=c(0,income.kor.cum[,2]), type="b", xlim=c(0,200), ann=F)
+title(main="Cumulative Income Distribution", xlab="Income (Million Won)", ylab="Cumulative % of Income")
+plot(x=income.breaks, y=c(0,income.kor.cum[,2]), type="b", xlim=c(0,100), ann=F)
+title(main="Cumulative Income Distribution", xlab="Income (Million Won)", ylab="Cumulative % of Income")
+par(mfrow=c(1,1))
+```
+
+
+이제 두 누적분포를 한 장에 살피는 방법을 생각해보자. $x$ 축을 사람, $y$ 축을 소득으로 하여 두 점을 이어주면 어떤 결과가 나오는 지 살펴 보자.
+
+```{r fig.width=12, fig.height=12}
+people<-c(0, income.kor.cum[,1])
+income<-c(0, income.kor.cum[,2])
+plot(x=people, y=income, type="b", ann=F, xaxt="n", yaxt="n")
+lines(x=0:100, y=0:100, type="l")
+axis(side=1, at=people, labels=people)
+axis(side=2, at=income, labels=income)
+abline(h=c(0,100), lty=2)
+abline(v=c(0,100), lty=2)
+title(main="Lorenz Curve of Korea Income", xlab="Earners Cumulated", ylab="Income Cumulated")
+```
+
+초승달 부분에 빗금을 치고 싶다면,
+
+```{r fig.width=12, fig.height=12}
+plot(x=people, y=income, type="b", ann=F, xaxt="n", yaxt="n")
+lines(x=0:100, y=0:100, type="l")
+axis(side=1, at=people, labels=people)
+axis(side=2, at=income, labels=income)
+abline(h=c(0,100), lty=2)
+abline(v=c(0,100), lty=2)
+title(main="Lorenz Curve of Korea Income", xlab="Earners Cumulated", ylab="Income Cumulated")
+polygon(x=c(people, 0), y=c(income,0), density=10, angle=135)
+```
+
+이 곡선의 이름은?
