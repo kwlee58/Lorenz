@@ -257,5 +257,21 @@ abline(h = c(0, 100), lty = 2)
 abline(v = c(0, 100), lty = 2)
 title(main = "Lorenz Curve of Korea Income", xlab = "Earners Cumulated", ylab = "Income Cumulated")
 polygon(earners.income, density = 10, angle = 135)
-text(x = 30, y = 60, labels = "Gini = 0.501", cex = 2)
+text(x = 30, y = 60, labels = "Gini = 0.501", cex = 1.5)
+```
+
+```{r, ggplot, fig.width = 9, fig.height = 9}
+library(ggplot2)
+ggplot() +
+  geom_line(data = earners.income, aes(x = earners, y = income)) +
+  geom_line(data = data.frame(x = c(0, 100), y = c(0, 100)), aes(x = x, y = y)) +
+  geom_hline(yintercept = c(0, 100), linetype = "dotted") +
+  geom_vline(xintercept = c(0, 100), linetype = "dotted") + 
+  geom_polygon(data = earners.income, aes(x = earners, y = income), alpha = 0.5, fill = "grey") +
+  geom_point(data = earners.income, aes(x = earners, y = income), shape = 21, fill = "white", size = 3) +
+  ggtitle("Lorenz Curve of Korea Income") + xlab("Earners Cumulated (%)") + ylab("Income Cumulated (%)") +
+  scale_x_continuous(breaks = earners[c(1:8, 14)], labels = earners[c(1:8, 14)]) +
+  scale_y_continuous(breaks = seq(0, 100, by = 25)) +
+  annotate("text", x = 30, y = 60, label = "Gini = 0.501", size = 7) +
+  theme_bw()
 ```
