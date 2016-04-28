@@ -210,7 +210,7 @@ polygon(poly.df, density = 15, angle = 135)
 points(earners.kor.cum.df, pch = 21, col = "black", bg = "white")
 lines(x = c(0, 19), y = rep(50, 2), col = "red", lwd = 2)
 arrows(19, 50, x1 = 19, y1 = 0, length = 0.15, col = "red", lwd = 2)
-text(x = 40, y = 25, labels = "중위소득", srt = 30, family = "AppleGothic", col = "red")
+text(x = 48, y = 25, labels = "Median Income", srt = 30, col = "red")
 title(main = title.2, xlab = xlab.2, ylab = ylab.2)
 ```
 
